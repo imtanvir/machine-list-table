@@ -17,3 +17,13 @@ td {
     text-align: center;
     font-size: 24px;
 }
+
+.filter {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.filter-text {
+    margin-right: 10px;
+}

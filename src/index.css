@@ -29,6 +29,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  position: relative;
 }
 
 h1 {
@@ -70,4 +71,61 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* .machine-table-section {
+  position: relative;
+} */
+
+.filter-menu {
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: #0000008e;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  display: flex;
+  justify-content: center;
+}
+
+.filter-options {
+  position: relative;
+  margin-top: 20rem;
+  background: #747bff;
+  height: min-content;
+  padding: 1rem;
+}
+
+.filter-inputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.filter-reset-button {
+  display: flex;
+  justify-content: center;
+  justify-content: space-between;
+}
+
+.reset {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+.close-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 24px;
+}
+
+.filter {
+  text-decoration: underline;
 }
