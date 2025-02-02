@@ -26,83 +26,57 @@ const MachineTable = () => {
                 const data = await response.json();
                 const machinesData = data;
 
-                // all machine category id (not duplicated)
-                const machinesCategoryId = [...new Set(machinesData.map((machine) => machine.category))];
+                const categoriesData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/category/`).then((res) => res.json());
+                const typesData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/type/`).then((res) => res.json());
+                const brandsData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/brand/`).then((res) => res.json());
+                const linesData = await fetch(`https://machine-maintenance.ddns.net/api/production/lines/`).then((res) => res.json());
+                const suppliersData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/supplier/`).then((res) => res.json());
 
-                // all machine type id (not duplicated)
-                const machinesTypeId = [...new Set(machinesData.map((machine) => machine.type))];
-
-                // all machine brand id (not duplicated)
-                const machinesBrandId = [...new Set(machinesData.map((machine) => machine.brand))];
-
-                // all machine line id (not duplicated)
-                const machinesLineId = [...new Set(machinesData.map((machine) => machine.line))];
-
-                // all machine supply id (not duplicated)
-                const machinesSupplierId = [...new Set(machinesData.map((machine) => machine.supplier))];
+                await Promise.all([categoriesData, typesData, brandsData, linesData, suppliersData]).then(([categoriesData, typesData, brandsData, linesData, suppliersData]) => {
 
 
 
-                // fetch machine category, type, brand, supplier, line data for each related id
-                const categoriesDataFetchRequests = machinesCategoryId.map((categoryId) => fetch(`https://machine-maintenance.ddns.net/api/maintenance/category/${categoryId}/`).then((res) => res.json()));
-
-                const typeDataFetchRequests = machinesTypeId.map((typeId) => fetch(`https://machine-maintenance.ddns.net/api/maintenance/type/${typeId}/`).then((res) => res.json()));
-
-                const brandDataFetchRequests = machinesBrandId.map((brandId) => fetch(`https://machine-maintenance.ddns.net/api/maintenance/brand/${brandId}/`).then((res) => res.json()));
-
-
-                const lineDataFetchRequests = machinesLineId.map((linesId) => fetch(`https://machine-maintenance.ddns.net/api/production/lines/${linesId}/`).then((res) => res.json()));
-
-                const supplierDataFetchRequests = machinesSupplierId.map((supplierId) => fetch(`https://machine-maintenance.ddns.net/api/maintenance/supplier/${supplierId}/`).then((res) => res.json()));
-
-
-                // wait for all promises to resolve
-                const categoriesPromises = await Promise.all(categoriesDataFetchRequests);
-                const typePromises = await Promise.all(typeDataFetchRequests);
-                const brandPromises = await Promise.all(brandDataFetchRequests);
-                const linePromises = await Promise.all(lineDataFetchRequests);
-                const supplierPromises = await Promise.all(supplierDataFetchRequests);
-
-
-                // update machine data with fetched category, type, brand, supplier, line identifiers
-                const updateMachineData = machinesData.map((machine) => {
-                    const updateMachineData = { ...machine };
-                    for (let i = 0; i < categoriesPromises.length; i++) {
-                        if (updateMachineData.category === categoriesPromises[i].id) {
-                            updateMachineData.category = categoriesPromises[i].name;
+                    // update machine data with fetched category, type, brand, supplier, line identifiers
+                    const updateMachineData = machinesData.map((machine) => {
+                        const updateMachineData = { ...machine };
+                        for (let i = 0; i < categoriesData.length; i++) {
+                            if (updateMachineData.category === categoriesData[i].id) {
+                                updateMachineData.category = categoriesData[i].name;
+                            }
                         }
-                    }
-                    for (let i = 0; i < typePromises.length; i++) {
-                        if (updateMachineData.type === typePromises[i].id) {
-                            updateMachineData.type = typePromises[i].name;
+                        for (let i = 0; i < typesData.length; i++) {
+                            if (updateMachineData.type === typesData[i].id) {
+                                updateMachineData.type = typesData[i].name;
+                            }
                         }
-                    }
 
-                    for (let i = 0; i < brandPromises.length; i++) {
-                        if (updateMachineData.brand === brandPromises[i].id) {
-                            updateMachineData.brand = brandPromises[i].name;
+                        for (let i = 0; i < brandsData.length; i++) {
+                            if (updateMachineData.brand === brandsData[i].id) {
+                                updateMachineData.brand = brandsData[i].name;
+                            }
                         }
-                    }
 
-                    for (let i = 0; i < linePromises.length; i++) {
-                        if (updateMachineData.line === linePromises[i].id) {
-                            updateMachineData.line = linePromises[i].name;
+                        for (let i = 0; i < linesData.length; i++) {
+                            if (updateMachineData.line === linesData[i].id) {
+                                updateMachineData.line = linesData[i].name;
+                            }
                         }
-                    }
 
-                    for (let i = 0; i < supplierPromises.length; i++) {
-                        if (updateMachineData.supplier === supplierPromises[i].id) {
-                            updateMachineData.supplier = supplierPromises[i].name;
+                        for (let i = 0; i < suppliersData.length; i++) {
+                            if (updateMachineData.supplier === suppliersData[i].id) {
+                                updateMachineData.supplier = suppliersData[i].name;
+                            }
                         }
+                        return updateMachineData;
                     }
-                    return updateMachineData;
-                }
-                );
+                    );
 
-                // set the updated machines data to the state variable
-                setMachinesData(updateMachineData);
-                setResetData(updateMachineData);
-                setLoading(false);
+                    // set the updated machines data to the state variable
+                    setMachinesData(updateMachineData);
+                    console.log({ updateMachineData });
+                    setResetData(updateMachineData);
+                    setLoading(false);
+                });
             } catch (error) {
                 console.error('Error fetching machines:', error);
             }
