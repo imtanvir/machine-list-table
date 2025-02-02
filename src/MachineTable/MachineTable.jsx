@@ -129,10 +129,10 @@ const MachineTable = () => {
                 <table>
                     <thead>
                         <tr>
+                            <th>Sequence</th>
                             <th>Machine ID</th>
                             <th>Model Number</th>
                             <th>Serial No</th>
-                            <th>Sequence</th>
                             <th>Purchase Date</th>
                             {/* <th>Floor</th> */}
                             <th>Status</th>
@@ -147,10 +147,10 @@ const MachineTable = () => {
                         {
                             machinesData?.map((machine) => (
                                 <tr key={machine.id}>
+                                    <td>{machine.sequence}</td>
                                     <td>{machine.machine_id}</td>
                                     <td>{machine.model_number}</td>
                                     <td>{machine.serial_no}</td>
-                                    <td>{machine.sequence}</td>
                                     <td>{machine.purchase_date}</td>
                                     {/* <td>{machine.floor}</td> */}
                                     <td>{machine.status}</td>
