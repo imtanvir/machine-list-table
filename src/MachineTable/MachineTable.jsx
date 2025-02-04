@@ -9,6 +9,12 @@ const MachineTable = () => {
     const [resetData, setResetData] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const [filterCategory, setFilterCategory] = useState([]);
+    const [filterBrand, setFilterBrand] = useState([]);
+    const [filterType, setFilterType] = useState([]);
+    const [filterLine, setFilterLine] = useState([]);
+    const [filterSupplier, setFilterSupplier] = useState([]);
+
     // filter open and close states
     const [filterOpen, setFilterOpen] = useState(false);
     const handleFilterClick = () => {
@@ -33,9 +39,11 @@ const MachineTable = () => {
                 const suppliersData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/supplier/`).then((res) => res.json());
 
                 await Promise.all([categoriesData, typesData, brandsData, linesData, suppliersData]).then(([categoriesData, typesData, brandsData, linesData, suppliersData]) => {
-
-
-
+                    setFilterCategory(categoriesData);
+                    setFilterBrand(brandsData);
+                    setFilterType(typesData);
+                    setFilterLine(linesData);
+                    setFilterSupplier(suppliersData);
                     // update machine data with fetched category, type, brand, supplier, line identifiers
                     const updateMachineData = machinesData.map((machine) => {
                         const updateMachineData = { ...machine };
@@ -73,7 +81,7 @@ const MachineTable = () => {
 
                     // set the updated machines data to the state variable
                     setMachinesData(updateMachineData);
-                    console.log({ updateMachineData });
+                    // console.log({ updateMachineData });
                     setResetData(updateMachineData);
                     setLoading(false);
                 });
@@ -84,7 +92,7 @@ const MachineTable = () => {
         fetchMachines();
     }, []);
 
-    console.log({ machinesData });
+    // console.log({ machinesData });
     return (
         <>
             <section className="machine-table-section">
@@ -108,7 +116,6 @@ const MachineTable = () => {
                             <th>Model Number</th>
                             <th>Serial No</th>
                             <th>Purchase Date</th>
-                            {/* <th>Floor</th> */}
                             <th>Status</th>
                             <th>Category</th>
                             <th>Type</th>
@@ -126,7 +133,6 @@ const MachineTable = () => {
                                     <td>{machine.model_number}</td>
                                     <td>{machine.serial_no}</td>
                                     <td>{machine.purchase_date}</td>
-                                    {/* <td>{machine.floor}</td> */}
                                     <td>{machine.status}</td>
                                     <td>{machine.category}</td>
                                     <td>{machine.type}</td>
@@ -144,7 +150,7 @@ const MachineTable = () => {
                     </tbody>
                 </table>
                 {/* Filter popup menu */}
-                <FilterSection filterOpen={filterOpen} setFilterOpen={setFilterOpen} setMachinesData={setMachinesData} />
+                <FilterSection filterCategory={filterCategory} filterBrand={filterBrand} filterType={filterType} filterLine={filterLine} filterSupplier={filterSupplier} filterOpen={filterOpen} setFilterOpen={setFilterOpen} setMachinesData={setMachinesData} />
             </section>
         </>
     )
