@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaFilter } from "react-icons/fa";
 import { RiResetRightLine } from "react-icons/ri";
 
+import formatTitle from '../utils/FormatTilte';
 import FilterSection from './FilterSection/FilterSection';
 import './MachineTable.css';
 const MachineTable = () => {
@@ -24,6 +25,30 @@ const MachineTable = () => {
         setMachinesData(resetData);
     }
 
+    // table swapping handlers
+    const tableRef = useRef(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setStartX(e.pageX - tableRef.current.offsetLeft);
+        setScrollLeft(tableRef.current.scrollLeft);
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - tableRef.current.offsetLeft;
+        const walk = (x - startX) * 2; // Adjust scrolling speed
+        tableRef.current.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
     useEffect(() => {
         const fetchMachines = async () => {
             try {
@@ -32,59 +57,65 @@ const MachineTable = () => {
                 const data = await response.json();
                 const machinesData = data;
 
-                const categoriesData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/category/`).then((res) => res.json());
-                const typesData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/type/`).then((res) => res.json());
-                const brandsData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/brand/`).then((res) => res.json());
-                const linesData = await fetch(`https://machine-maintenance.ddns.net/api/production/lines/`).then((res) => res.json());
-                const suppliersData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/supplier/`).then((res) => res.json());
+                // set the updated machines data to the state variable
+                setMachinesData(machinesData);
+                console.log({ machinesData });
+                setResetData(machinesData);
+                setLoading(false);
 
-                await Promise.all([categoriesData, typesData, brandsData, linesData, suppliersData]).then(([categoriesData, typesData, brandsData, linesData, suppliersData]) => {
-                    setFilterCategory(categoriesData);
-                    setFilterBrand(brandsData);
-                    setFilterType(typesData);
-                    setFilterLine(linesData);
-                    setFilterSupplier(suppliersData);
-                    // update machine data with fetched category, type, brand, supplier, line identifiers
-                    const updateMachineData = machinesData.map((machine) => {
-                        const updateMachineData = { ...machine };
-                        for (let i = 0; i < categoriesData.length; i++) {
-                            if (updateMachineData.category === categoriesData[i].id) {
-                                updateMachineData.category = categoriesData[i].name;
-                            }
-                        }
-                        for (let i = 0; i < typesData.length; i++) {
-                            if (updateMachineData.type === typesData[i].id) {
-                                updateMachineData.type = typesData[i].name;
-                            }
-                        }
+                // const categoriesData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/category/`).then((res) => res.json());
+                // const typesData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/type/`).then((res) => res.json());
+                // const brandsData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/brand/`).then((res) => res.json());
+                // const linesData = await fetch(`https://machine-maintenance.ddns.net/api/production/lines/`).then((res) => res.json());
+                // const suppliersData = await fetch(`https://machine-maintenance.ddns.net/api/maintenance/supplier/`).then((res) => res.json());
 
-                        for (let i = 0; i < brandsData.length; i++) {
-                            if (updateMachineData.brand === brandsData[i].id) {
-                                updateMachineData.brand = brandsData[i].name;
-                            }
-                        }
+                // await Promise.all([categoriesData, typesData, brandsData, linesData, suppliersData]).then(([categoriesData, typesData, brandsData, linesData, suppliersData]) => {
+                //     setFilterCategory(categoriesData);
+                //     setFilterBrand(brandsData);
+                //     setFilterType(typesData);
+                //     setFilterLine(linesData);
+                //     setFilterSupplier(suppliersData);
+                //     // update machine data with fetched category, type, brand, supplier, line identifiers
+                //     const updateMachineData = machinesData.map((machine) => {
+                //         const updateMachineData = { ...machine };
+                //         for (let i = 0; i < categoriesData.length; i++) {
+                //             if (updateMachineData.category === categoriesData[i].id) {
+                //                 updateMachineData.category = categoriesData[i].name;
+                //             }
+                //         }
+                //         for (let i = 0; i < typesData.length; i++) {
+                //             if (updateMachineData.type === typesData[i].id) {
+                //                 updateMachineData.type = typesData[i].name;
+                //             }
+                //         }
 
-                        for (let i = 0; i < linesData.length; i++) {
-                            if (updateMachineData.line === linesData[i].id) {
-                                updateMachineData.line = linesData[i].name;
-                            }
-                        }
+                //         for (let i = 0; i < brandsData.length; i++) {
+                //             if (updateMachineData.brand === brandsData[i].id) {
+                //                 updateMachineData.brand = brandsData[i].name;
+                //             }
+                //         }
 
-                        for (let i = 0; i < suppliersData.length; i++) {
-                            if (updateMachineData.supplier === suppliersData[i].id) {
-                                updateMachineData.supplier = suppliersData[i].name;
-                            }
-                        }
-                        return updateMachineData;
-                    }
-                    );
+                //         for (let i = 0; i < linesData.length; i++) {
+                //             if (updateMachineData.line === linesData[i].id) {
+                //                 updateMachineData.line = linesData[i].name;
+                //             }
+                //         }
 
-                    // set the updated machines data to the state variable
-                    setMachinesData(updateMachineData);
-                    // console.log({ updateMachineData });
-                    setResetData(updateMachineData);
-                    setLoading(false);
-                });
+                //         for (let i = 0; i < suppliersData.length; i++) {
+                //             if (updateMachineData.supplier === suppliersData[i].id) {
+                //                 updateMachineData.supplier = suppliersData[i].name;
+                //             }
+                //         }
+                //         return updateMachineData;
+                //     }
+                //     );
+
+                //     // // set the updated machines data to the state variable
+                //     // setMachinesData(updateMachineData);
+                //     // // console.log({ updateMachineData });
+                //     // setResetData(updateMachineData);
+                //     // setLoading(false);
+                // });
             } catch (error) {
                 console.error('Error fetching machines:', error);
             }
@@ -96,7 +127,8 @@ const MachineTable = () => {
     return (
         <>
             <section className="machine-table-section">
-                <h1>Machine List & Details Table</h1>
+                <h1 className="text-center">Machine List & Details Table</h1>
+                <p className=" italic text-center">*note: Filter is dynamic yet. under development...*</p>
                 <div className="filter-reset-button">
                     <div className="filter" onClick={() => handleFilterClick()} title="Filter">
                         <p className="filter-text">Filter</p>
@@ -108,7 +140,7 @@ const MachineTable = () => {
                     </div>
                 </div>
 
-                <table>
+                {/* <table>
                     <thead>
                         <tr>
                             <th>Sequence</th>
@@ -148,7 +180,46 @@ const MachineTable = () => {
                             loading && <tr><td className="loader" colSpan={10}>Loading...</td></tr>
                         }
                     </tbody>
-                </table>
+                </table> */}
+                <div
+                    ref={tableRef}
+                    className=" overflow-x-auto min-w-[70vw] cursor-grab active:cursor-grabbing p-4 border-2 rounded"
+                    onMouseDown={handleMouseDown}
+                    onMouseLeave={handleMouseUp}
+                    onMouseUp={handleMouseUp}
+                    onMouseMove={handleMouseMove}
+                >
+                    <table className="">
+                        <thead>
+                            <tr>
+                                {machinesData?.length > 0 &&
+                                    Array.from(
+                                        new Set(machinesData.flatMap(machine => Object.keys(machine)))
+                                    ).map((title) => (
+                                        <th key={title}>{formatTitle(title)}</th>
+                                    ))
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {machinesData?.map((machine, index) => (
+                                <tr key={index}>
+                                    {Array.from(new Set(machinesData.flatMap(machine => Object.keys(machine))))
+                                        .map((key) => (
+                                            <td key={key}>{machine[key] ?? "N/A"}</td>
+                                        ))}
+                                </tr>
+                            ))}
+                            {
+                                machinesData.length === 0 && !loading && <tr><td className="loader" colSpan={10}>No machines data found!</td></tr>
+                            }
+                            {
+                                loading && <tr><td className="loader" colSpan={10}>Loading...</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
                 {/* Filter popup menu */}
                 <FilterSection filterCategory={filterCategory} filterBrand={filterBrand} filterType={filterType} filterLine={filterLine} filterSupplier={filterSupplier} filterOpen={filterOpen} setFilterOpen={setFilterOpen} setMachinesData={setMachinesData} />
             </section>
